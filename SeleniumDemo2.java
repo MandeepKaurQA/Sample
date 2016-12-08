@@ -1,5 +1,6 @@
 package demo;
 
+import java.io.DataOutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
@@ -9,8 +10,10 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
+import org.json.JSONObject;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -27,6 +30,7 @@ public class SeleniumDemo2 {
 	}	
 	void launch_browser(String aurl)
 	{
+		System.out.println("Advance Course");
 	  driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
 	  driver.get(aurl);
 	  driver.manage().window().maximize();
@@ -104,17 +108,87 @@ public class SeleniumDemo2 {
 	}
 	
 	
-	void restful()
+	void restful_services()
 	{
-		WebElement sn=driver.findElement(By.xpath("//span[@id='session_id'"));
+		System.out.println("RestFul Services");
+		
+		WebElement sn=driver.findElement(By.xpath("//div[@class='page']/span[@id='session_id']"));
 		String sid=sn.getText();
 		sid=sid.substring(12,sid.length());
-		String reqst=driver.getCurrentUrl()+sid;
-		try {
-			URL url1=new URL(reqst);
-			HttpURLConnection connection = (HttpURLConnection) url1.openConnection();
-			connection.setRequestMethod("POST");
+		
+		System.out.println("Session id : "+sid);
+		String reqst="http://10.0.1.86/tatoc/advanced/rest/service/token/"+sid;
+		System.out.println("Current Url is :"+ reqst);
+		try { //GET scenario
+			System.out.println("GET http-connection !!");
+			URL get_url=new URL(reqst);
+			HttpURLConnection  get_conn=(HttpURLConnection)get_url.openConnection();
+			get_conn.setRequestMethod("GET");
+			get_conn.setRequestProperty("ACCEPT", "application/json");
+			if(get_conn.getResponseCode()!=200){
+				throw new RuntimeException("Http error code : "+get_conn.getResponseCode());}
 			
+			Scanner scan=new Scanner(get_url.openStream());
+			String resp=new String();
+				while(scan.hasNext()){
+					resp +=scan.nextLine(); }
+				
+			System.out.println("Response is : "+resp);
+			scan.close();
+			//get_conn.disconnect();
+			//put scenario
+			System.out.println("JSON object");
+			JSONObject obj= new JSONObject(resp);
+			String signature= (String )obj.get("token");
+			
+			String post_url="http://10.0.1.86/tatoc/advanced/rest/service/register";
+			
+			System.out.println("Signature: "+ signature);
+			String params="id="+sid+"&signature="+signature+"&allow_access="+1;
+			String url2=post_url+params;
+			System.out.println(url2);
+				
+			URL url1=new URL(url2);
+			
+			HttpURLConnection post_conn=(HttpURLConnection)url1.openConnection();
+			System.out.println("Post Http-Connection");
+			post_conn.setRequestMethod("POST");
+			post_conn.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
+			post_conn.setDoOutput(true);
+			
+			DataOutputStream writer = new DataOutputStream(post_conn.getOutputStream());
+			int responseCode = post_conn.getResponseCode();
+			writer.writeBytes(params);
+						
+			System.out.println("Sending request to URL : " + url1);
+			System.out.println("Check1 Post parameters : " + params);
+			System.out.println("Check2 Response Code : " + responseCode);
+			writer.flush();
+			writer.close();
+				
+			/*
+			BufferedReader in1 = new BufferedReader(new InputStreamReader(post_conn.getInputStream()));
+			String inputLine1;
+			StringBuffer response1 = new StringBuffer();
+			
+			while ((inputLine1 = in1.readLine()) != null) {
+				System.out.println("inputline1 :: "	+response1.append(inputLine1));}
+			
+			System.out.println("write.write(params)"+response1);
+			
+			
+			
+			in1.close();
+				*/
+		   	if (post_conn.getResponseCode() != 200) {
+		        throw new RuntimeException("Failed : HTTP error code : " + post_conn.getResponseCode());
+		        }
+        	
+			get_conn.disconnect();		
+			
+			driver.findElement(By.xpath("//div[@class='page']/a[text()='Proceed']")).click();	
+					
+						
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -127,11 +201,17 @@ public class SeleniumDemo2 {
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			e.printStackTrace();}
 		}
 		
+		void close_browser()
+	    {
+	    	
+	    	driver.close();
+	    	System.exit(0);
+	    	
+	    }
 		
 		
-		
-	}
+	
 }

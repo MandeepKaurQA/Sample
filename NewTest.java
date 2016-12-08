@@ -4,9 +4,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-//import org.testng.annotations.AfterClass;
 
-//import org.testng.annotations.BeforeClass;
 
 public class NewTest {
  
@@ -89,14 +87,19 @@ public class NewTest {
   {
       SD1.ooyala_player();
   }
-  
+  @Test
+  public void test9()
+  {
+      SD1.restful_services();
+  }
   @AfterClass
   public void end_launch()
   {
-	  //SD1.close_browser();
+	  SD1.close_browser();
+	  
   }
   
-  @Test
+ 
 @BeforeTest
   public void test_launch() 
   {

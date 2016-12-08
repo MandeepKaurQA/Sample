@@ -23,6 +23,7 @@ class SeleniumMain {
 
 	void launch_browser(String aurl)
 	{
+		System.out.println("Basic Course");
 	  driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
 	  driver.get(aurl);
 	  driver.manage().window().maximize();
