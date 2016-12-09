@@ -80,7 +80,7 @@ public class SeleniumDemo2 {
       			name=rs1.getString(1);
       			pkey=rs1.getString(2);
       		}
-      		System.out.println("Name and Passkey are "+name +" : "+pkey);
+      		System.out.println("Name + Passkey are:  "+name +" & "+pkey);
       		driver.switchTo().defaultContent();
       		driver.findElement(By.xpath("//form[@id='symbolform']/input[@id='name']")).sendKeys(name);
       		driver.findElement(By.xpath("//form[@id='symbolform']/input[@id='passkey']")).sendKeys(pkey);
@@ -101,7 +101,7 @@ public class SeleniumDemo2 {
 	
 	void ooyala_player()
 	{
-		//by pass task-- video expired
+		//bypass task-- video expired
 			driver.navigate().to("http://10.0.1.86/tatoc/advanced/rest");
 			//driver.findElement(By.xpath("//div[@id='ooyalaplayer']"));
 		   // driver.findElement(By.xpath("//a[text()='Proceed']")).click();
@@ -115,12 +115,10 @@ public class SeleniumDemo2 {
 		WebElement sn=driver.findElement(By.xpath("//div[@class='page']/span[@id='session_id']"));
 		String sid=sn.getText();
 		sid=sid.substring(12,sid.length());
-		
-		System.out.println("Session id : "+sid);
 		String reqst="http://10.0.1.86/tatoc/advanced/rest/service/token/"+sid;
 		System.out.println("Current Url is :"+ reqst);
-		try { //GET scenario
-			System.out.println("GET http-connection !!");
+		try { //GET http request
+			System.out.println("GET http-connection with session id !!"+sid);
 			URL get_url=new URL(reqst);
 			HttpURLConnection  get_conn=(HttpURLConnection)get_url.openConnection();
 			get_conn.setRequestMethod("GET");
@@ -140,18 +138,18 @@ public class SeleniumDemo2 {
 			System.out.println("JSON object");
 			JSONObject obj= new JSONObject(resp);
 			String signature= (String )obj.get("token");
+			System.out.println("Signature: "+ signature);
 			
 			String post_url="http://10.0.1.86/tatoc/advanced/rest/service/register";
-			
-			System.out.println("Signature: "+ signature);
 			String params="id="+sid+"&signature="+signature+"&allow_access="+1;
-			String url2=post_url+params;
-			System.out.println(url2);
+			post_url=post_url+params;
+			System.out.println(post_url);
 				
-			URL url1=new URL(url2);
+			URL url1=new URL(post_url);
 			
 			HttpURLConnection post_conn=(HttpURLConnection)url1.openConnection();
-			System.out.println("Post Http-Connection");
+			//driver.get(post_url);
+     		System.out.println("Post Http-Connection");
 			post_conn.setRequestMethod("POST");
 			post_conn.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
 			post_conn.setDoOutput(true);
@@ -166,22 +164,9 @@ public class SeleniumDemo2 {
 			writer.flush();
 			writer.close();
 				
-			/*
-			BufferedReader in1 = new BufferedReader(new InputStreamReader(post_conn.getInputStream()));
-			String inputLine1;
-			StringBuffer response1 = new StringBuffer();
 			
-			while ((inputLine1 = in1.readLine()) != null) {
-				System.out.println("inputline1 :: "	+response1.append(inputLine1));}
-			
-			System.out.println("write.write(params)"+response1);
-			
-			
-			
-			in1.close();
-				*/
 		   	if (post_conn.getResponseCode() != 200) {
-		        throw new RuntimeException("Failed : HTTP error code : " + post_conn.getResponseCode());
+		        throw new RuntimeException("Failed : HTTP POST error code : " + post_conn.getResponseCode());
 		        }
         	
 			get_conn.disconnect();		
@@ -207,8 +192,8 @@ public class SeleniumDemo2 {
 		void close_browser()
 	    {
 	    	
-	    	driver.close();
-	    	System.exit(0);
+	    	//driver.close();
+	    	//System.exit(0);
 	    	
 	    }
 		
